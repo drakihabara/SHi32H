@@ -21,11 +21,10 @@
   .btn-verbal { border-left: 10px solid #3498db; }
   .btn-nonverbal { border-left: 10px solid #e74c3c; }
   #question { margin: 1rem 0.5rem; font-size: 1.1rem; font-weight: bold; line-height: 1.5; white-space: pre-wrap; }
-  
   .sub-table {
     width: 100%; border-collapse: collapse; margin-bottom: 1rem; table-layout: fixed;
     background: #fff; border: 1px solid #000; font-family: "MS Mincho", "Hiragino Mincho ProN", serif;
-    font-size: 0.95rem; /* 文字サイズを大きくしました */
+    font-size: 0.9rem;
   }
   .sub-table th, .sub-table td {
     border: 1px solid #000; padding: 6px 2px; text-align: center; line-height: 1.3;
@@ -33,7 +32,6 @@
   .sub-table .no-border { border: none; }
   .legend-cell { font-size: 0.75rem; text-align: left; padding: 4px; border: none !important; }
   .legend-box { border: 1px solid #000; display: inline-block; padding: 3px; margin-bottom: 3px; }
-
   .q-img { width: 100%; max-width: 400px; display: block; margin: 10px auto; border: 1px solid #eee; border-radius: 8px; }
   #options { list-style: none; padding: 0; margin: 0; }
   #options li { margin-bottom: 0.5rem; }
@@ -134,26 +132,10 @@
   async function loadCSV(file) {
     const response = await fetch(file);
     const text = await response.text();
-    const parseCsvLine = (line) => {
-      let result = [];
-      let currentField = '', inQuote = false;
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        if (char === '"') {
-          if (inQuote && line[i + 1] === '"') { currentField += '"'; i++; }
-          else inQuote = !inQuote;
-        } else if (char === ',' && !inQuote) {
-          result.push(currentField); currentField = '';
-        } else currentField += char;
-      }
-      result.push(currentField);
-      return result.map(f => f.trim());
-    };
     return text.trim().split(/\r?\n/).slice(1).map(line => {
-      if (!line.trim()) return null;
-      const c = parseCsvLine(line);
-      if (c.length < 5) return null;
-      return { id: c[0], q: c[1].replace(/\\n/g, '\n'), img: c[2], options: c.slice(3, -2).filter(o => o !== ""), answer: parseInt(c[c.length-2]) - 1, explanation: c[c.length-1].replace(/\\n/g, '\n') };
+      const c = line.split('\t').map(s => s.replace(/^"|"$/g, '').replace(/""/g, '"'));
+      if (c.length < 12) return null;
+      return { id: c[0], q: c[1].replace(/\\n/g, '\n'), img: c[2], options: c.slice(3, 10).filter(o => o !== ""), answer: parseInt(c[10]) - 1, explanation: c[11].replace(/\\n/g, '\n') };
     }).filter(q => q !== null);
   }
   function shuffle(a) {
@@ -172,7 +154,7 @@
       mappings.forEach(m => { const pair = m.split('='); if (pair[1]) tableHtml += `<td style="border:1px solid #ccc;">${pair[1]}</td>`; });
       tableHtml += '</tr></table>';
       qHtml = tableHtml + `<div style="text-align:center; font-size:1.3rem; margin:1rem 0;">${partsTable[1].replace(/\n/g, '<br>')}</div>`;
-    } else if (q.id.startsWith('V') && q.q.includes('\n') && !q.q.includes('/')) {
+    } else if (q.id.startsWith('V') && q.q.includes('\n') && !q.q.includes('１．') && !q.q.includes('性別')) {
       const lines = q.q.split('\n');
       if (lines.length === 2) qHtml = `<div style="display:flex; justify-content:center; gap:2.5rem; font-size:1.6rem; margin:2rem 0; font-weight:bold; font-family:monospace;"><span>${lines[0]}</span><span>${lines[1]}</span></div>`;
       else qHtml = `<div>${q.q.replace(/\n/g, '<br>')}</div>`;
