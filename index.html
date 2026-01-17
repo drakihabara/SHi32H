@@ -28,7 +28,7 @@
     font-size: 0.85rem;
   }
   .sub-table th, .sub-table td {
-    border: 1px solid #000; padding: 5px 2px; text-align: center; line-height: 1.2; height: 40px;
+    border: 1px solid #000; padding: 6px 2px; text-align: center; line-height: 1.2;
   }
   .sub-table .no-border { border: none; }
   .legend-cell { font-size: 0.7rem; text-align: left; padding: 4px; border: none !important; }
@@ -186,15 +186,25 @@
       for (let i = 1; i < stations.length; i++) {
         tableHtml += `<tr><th>${stations[i]}</th>`;
         const prices = data[i].split('|');
-        for (let j = 0; j < i; j++) {
-          tableHtml += `<td>${prices[j].replace(/\\n/g, '<br>')}</td>`;
-        }
+        for (let j = 0; j < i; j++) { tableHtml += `<td>${prices[j].replace(/\\n/g, '<br>')}</td>`; }
         tableHtml += `<th>${stations[i]}</th>`;
-        for (let j = i + 1; j < stations.length; j++) {
-          tableHtml += '<td class="no-border"></td>';
-        }
+        for (let j = i + 1; j < stations.length; j++) { tableHtml += '<td class="no-border"></td>'; }
         tableHtml += '</tr>';
       }
+      tableHtml += '</table>';
+      qHtml += tableHtml;
+    } else if (q.img && q.img.startsWith('[TABLE]')) {
+      const rows = q.img.replace('[TABLE]', '').split(';');
+      let tableHtml = '<table class="sub-table">';
+      rows.forEach((row, i) => {
+        tableHtml += '<tr>';
+        const cells = row.split('|');
+        cells.forEach(cell => {
+          const content = cell.replace(/\\n/g, '<br>');
+          tableHtml += (i === 0) ? `<th>${content}</th>` : `<td>${content}</td>`;
+        });
+        tableHtml += '</tr>';
+      });
       tableHtml += '</table>';
       qHtml += tableHtml;
     } else if (q.img && q.img.trim() !== "") {
