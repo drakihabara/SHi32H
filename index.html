@@ -25,13 +25,13 @@
   .sub-table {
     width: 100%; border-collapse: collapse; margin-bottom: 1rem; table-layout: fixed;
     background: #fff; border: 1px solid #000; font-family: "MS Mincho", "Hiragino Mincho ProN", serif;
-    font-size: 0.7rem;
+    font-size: 0.85rem;
   }
   .sub-table th, .sub-table td {
-    border: 1px solid #000; padding: 4px 1px; text-align: center; line-height: 1.2; height: 35px;
+    border: 1px solid #000; padding: 5px 2px; text-align: center; line-height: 1.2; height: 40px;
   }
   .sub-table .no-border { border: none; }
-  .legend-cell { font-size: 0.6rem; text-align: left; padding: 4px; border: none !important; }
+  .legend-cell { font-size: 0.7rem; text-align: left; padding: 4px; border: none !important; }
   .legend-box { border: 1px solid #000; display: inline-block; padding: 3px; margin-bottom: 3px; }
 
   .q-img { width: 100%; max-width: 400px; display: block; margin: 10px auto; border: 1px solid #eee; border-radius: 8px; }
@@ -176,7 +176,6 @@
       const lines = q.q.split('\n');
       if (lines.length === 2) qHtml = `<div style="display:flex; justify-content:center; gap:2.5rem; font-size:1.6rem; margin:2rem 0; font-weight:bold; font-family:monospace;"><span>${lines[0]}</span><span>${lines[1]}</span></div>`;
       else qHtml = `<div>${q.q.replace(/\n/g, '<br>')}</div>`;
-    Part
     } else qHtml = `<div>${q.q.replace(/\n/g, '<br>')}</div>`;
 
     if (q.img && q.img.startsWith('[FARE]')) {
@@ -188,7 +187,7 @@
         tableHtml += `<tr><th>${stations[i]}</th>`;
         const prices = data[i].split('|');
         for (let j = 0; j < i; j++) {
-          tableHtml += `<td>${prices[j].replace('\\n', '<br>')}</td>`;
+          tableHtml += `<td>${prices[j].replace(/\\n/g, '<br>')}</td>`;
         }
         tableHtml += `<th>${stations[i]}</th>`;
         for (let j = i + 1; j < stations.length; j++) {
