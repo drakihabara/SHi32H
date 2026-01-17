@@ -22,6 +22,16 @@
   .btn-nonverbal { border-left: 10px solid #e74c3c; }
 
   #question { margin: 1rem 0.5rem; font-size: 1.1rem; font-weight: bold; line-height: 1.5; white-space: pre-wrap; }
+  
+  .sub-table {
+    width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; table-layout: fixed;
+    background: #fff; border: 2px solid #333;
+  }
+  .sub-table th, .sub-table td {
+    border: 1px solid #333; padding: 8px; text-align: center; font-size: 1.2rem;
+  }
+  .sub-table th { background: #eee; font-weight: bold; }
+
   .q-img { width: 100%; max-width: 400px; display: block; margin: 10px auto; border: 1px solid #eee; border-radius: 8px; }
   #options { list-style: none; padding: 0; margin: 0; }
   #options li { margin-bottom: 0.5rem; }
@@ -177,7 +187,27 @@
 
   function showQuestion() {
     const q = questions[current];
-    let qHtml = `<div>${q.q}</div>`;
+    let qHtml = '';
+
+    const parts = q.q.split(' / ');
+    if (parts.length > 1 && parts[0].includes('=')) {
+      let tableHtml = '<table class="sub-table"><tr>';
+      const mappings = parts[0].split(' ');
+      mappings.forEach(m => {
+        const pair = m.split('=');
+        if (pair[0]) tableHtml += `<th>${pair[0]}</th>`;
+      });
+      tableHtml += '</tr><tr>';
+      mappings.forEach(m => {
+        const pair = m.split('=');
+        if (pair[1]) tableHtml += `<td>${pair[1]}</td>`;
+      });
+      tableHtml += '</tr></table>';
+      qHtml = tableHtml + `<div style="text-align:center; font-size:1.4rem; margin:1rem 0;">${parts[1]}</div>`;
+    } else {
+      qHtml = `<div>${q.q}</div>`;
+    }
+
     if (q.img && q.img.trim() !== "") {
       qHtml += `<img src="images/${q.img}" class="q-img">`;
     }
