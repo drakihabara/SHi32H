@@ -5,23 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 <title>高校生用SPI対策</title>
 <style>
-  /* 拡大防止と基本スタイル */
-  html, body {
-    touch-action: manipulation; /* ダブルタップズームを無効化 */
-  }
+  html, body { touch-action: manipulation; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     margin: 0; padding: 0.5rem; background: #f9f9f9; color: #333; font-size: 18px; line-height: 1.6;
   }
   h1 { text-align: center; font-size: 1.6rem; margin: 1rem 0 1.5rem; color: #2c3e50; }
   .container { width: 100%; max-width: 500px; margin: 0 auto; box-sizing: border-box; }
-  
-  /* ボタンの拡大防止とデザイン */
-  .tag-btn, #options button {
-    touch-action: manipulation;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
+  .tag-btn, #options button { touch-action: manipulation; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .tag-btn {
     display: block; width: 100%; padding: 1.5rem 1rem; margin: 1rem 0;
     border: 1px solid #dcdde1; border-radius: 12px; font-size: 1.2rem; font-weight: bold;
@@ -34,34 +25,20 @@
   
   #question { margin: 1rem 0.5rem 2.5rem; line-height: 1.6; white-space: pre-wrap; }
 
-  /* ▼▼▼ 今回追加：画像の横幅制限とスタイル ▼▼▼ */
-  .q-img {
-    max-width: 100%;      /* 親要素の幅を超えないように制限 */
-    height: auto;         /* 縦横比を維持 */
-    display: block;       /* ブロック要素にして中央揃え */
-    margin: 1.5rem auto;  /* 上下の余白と左右の中央揃え */
-    border-radius: 8px;   /* 角を少し丸く */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* 軽い影を追加 */
-  }
-  /* ▲▲▲ 追加ここまで ▲▲▲ */
-
-  /* 照合問題用 */
-  .matching-container { display: flex; justify-content: center; gap: 2rem; font-size: 1.6rem; font-weight: bold; font-family: monospace; margin: 2rem 0; }
-  
-  /* 言語分野強調用 */
-  .q-prompt { display: block; font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #000; text-align: center; }
-  .q-sub { display: block; font-size: 1.2rem; margin-bottom: 0.3rem; padding-left: 1rem; }
-
-  /* 共通テーブルスタイル */
   .sub-table {
     width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; table-layout: fixed;
     background: #fff; border: 1px solid #000; font-family: "MS Mincho", "Hiragino Mincho ProN", serif;
     font-size: 0.95rem;
   }
   .sub-table th, .sub-table td { border: 1px solid #000; padding: 8px 2px; text-align: center; line-height: 1.3; }
+  .sub-table th { background: #eee; }
   .sub-table .no-border { border: none; }
   .legend-cell { font-size: 0.75rem; text-align: left; padding: 4px; border: none !important; }
   .legend-box { border: 1px solid #000; display: inline-block; padding: 3px; margin-bottom: 3px; }
+
+  .matching-container { display: flex; justify-content: center; gap: 2rem; font-size: 1.6rem; font-weight: bold; font-family: monospace; margin: 2rem 0; }
+  .q-prompt { display: block; font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #000; text-align: center; }
+  .q-sub { display: block; font-size: 1.2rem; margin-bottom: 0.3rem; padding-left: 1rem; }
 
   #options { list-style: none; padding: 0; margin: 0; }
   #options li { margin-bottom: 0.8rem; }
@@ -83,7 +60,7 @@
   #modalNextBtn {
     display: block; width: 100%; padding: 1rem; margin-top: 1.5rem;
     border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold;
-    background: #3498db; color: #fff; cursor: pointer;
+    background: #3498db; color: #fff;
   }
 </style>
 </head>
@@ -163,14 +140,7 @@
     return text.trim().split(/\r?\n/).slice(1).map(line => {
       const c = line.split('\t').map(s => s.replace(/^"|"$/g, '').replace(/""/g, '"'));
       if (c.length < 12) return null;
-      return { 
-        id: c[0], 
-        q: c[1].replace(/\\n/g, '\n'), 
-        img: c[2], 
-        options: c.slice(3, 10).filter(o => o !== ""), 
-        answer: parseInt(c[10]) - 1, 
-        explanation: c[11].replace(/\\n/g, '\n') 
-      };
+      return { id: c[0], q: c[1].replace(/\\n/g, '\n'), img: c[2], options: c.slice(3, 10).filter(o => o !== ""), answer: parseInt(c[10]) - 1, explanation: c[11].replace(/\\n/g, '\n') };
     }).filter(q => q !== null);
   }
   function shuffle(a) {
@@ -196,19 +166,12 @@
     const q = questions[current];
     let qHtml = '';
     const partsSub = q.q.split(' / ');
-    
     if (partsSub.length > 1 && partsSub[0].includes('=')) {
-      let subTable = '<table class="sub-table" style="font-family:sans-serif; margin-bottom:1rem;"><tr>';
+      let subTable = '<table class="sub-table" style="font-family:sans-serif;"><tr>';
       const mappings = partsSub[0].trim().split(/\s+/);
-      mappings.forEach(m => {
-        const pair = m.split('=');
-        if (pair[0]) subTable += `<th style="background:#eee;">${pair[0]}</th>`;
-      });
+      mappings.forEach(m => { const pair = m.split('='); if (pair[0]) subTable += `<th>${pair[0]}</th>`; });
       subTable += '</tr><tr>';
-      mappings.forEach(m => {
-        const pair = m.split('=');
-        if (pair[1]) subTable += `<td>${pair[1]}</td>`;
-      });
+      mappings.forEach(m => { const pair = m.split('='); if (pair[1]) subTable += `<td>${pair[1]}</td>`; });
       subTable += '</tr></table>';
       qHtml = subTable + `<div style="text-align:center; font-size:1.4rem; margin:1rem 0;">${partsSub[1].replace(/\n/g, '<br>')}</div>`;
     } 
@@ -219,13 +182,9 @@
     else if (q.id.startsWith('V') && q.q.includes('\n')) {
       const lines = q.q.split('\n');
       qHtml = `<span class="q-prompt">${lines[0]}</span>`;
-      for(let i=1; i<lines.length; i++) {
-        qHtml += `<span class="q-sub">${lines[i]}</span>`;
-      }
+      for(let i=1; i<lines.length; i++) { qHtml += `<span class="q-sub">${lines[i]}</span>`; }
     } 
-    else {
-      qHtml = `<div>${q.q.replace(/\n/g, '<br>')}</div>`;
-    }
+    else { qHtml = `<div>${q.q.replace(/\n/g, '<br>')}</div>`; }
 
     if (q.img && q.img.startsWith('[FARE]')) {
       const data = q.img.replace('[FARE]', '').split(';');
@@ -247,7 +206,6 @@
     } else if (q.img && q.img.trim() !== "") {
       qHtml += `<img src="images/${q.img}" class="q-img">`;
     }
-    
     document.getElementById('question').innerHTML = qHtml;
     const ul = document.getElementById('options');
     ul.innerHTML = '';
