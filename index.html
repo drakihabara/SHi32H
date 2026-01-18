@@ -20,17 +20,12 @@
   .tag-btn:active { background: #f5f6fa; transform: scale(0.98); }
   .btn-verbal { border-left: 10px solid #3498db; }
   .btn-nonverbal { border-left: 10px solid #e74c3c; }
-  
   #question { margin: 1rem 0.5rem 2.5rem; line-height: 1.6; white-space: pre-wrap; }
 
-  /* 照合問題用 */
   .matching-container { display: flex; justify-content: center; gap: 2rem; font-size: 1.6rem; font-weight: bold; font-family: monospace; margin: 2rem 0; }
-  
-  /* 言語分野強調用 */
   .q-prompt { display: block; font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #000; text-align: center; }
   .q-sub { display: block; font-size: 1.2rem; margin-bottom: 0.3rem; padding-left: 1rem; }
 
-  /* 共通テーブルスタイル */
   .sub-table {
     width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; table-layout: fixed;
     background: #fff; border: 1px solid #000; font-family: "MS Mincho", "Hiragino Mincho ProN", serif;
@@ -155,7 +150,7 @@
     for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
     return a;
   }
-  function renderTable(tableStr) {
+  function renderGenericTable(tableStr) {
     const rows = tableStr.replace('[TABLE]', '').split(';');
     let tableHtml = '<table class="sub-table">';
     rows.forEach((row, i) => {
@@ -173,30 +168,27 @@
   function showQuestion() {
     const q = questions[current];
     let qHtml = '';
-    
-    // 1. 置換問題 (N001-N017)
     const partsSub = q.q.split(' / ');
+    
     if (partsSub.length > 1 && partsSub[0].includes('=')) {
-      let tableHtml = '<table class="sub-table" style="font-family:sans-serif; margin-bottom:1rem;"><tr>';
+      let subTable = '<table class="sub-table" style="font-family:sans-serif; margin-bottom:1rem;"><tr>';
       const mappings = partsSub[0].trim().split(/\s+/);
       mappings.forEach(m => {
         const pair = m.split('=');
-        if (pair[0]) tableHtml += `<th style="background:#eee;">${pair[0]}</th>`;
+        if (pair[0]) subTable += `<th style="background:#eee;">${pair[0]}</th>`;
       });
-      tableHtml += '</tr><tr>';
+      subTable += '</tr><tr>';
       mappings.forEach(m => {
         const pair = m.split('=');
-        if (pair[1]) tableHtml += `<td>${pair[1]}</td>`;
+        if (pair[1]) subTable += `<td>${pair[1]}</td>`;
       });
-      tableHtml += '</tr></table>';
-      qHtml = tableHtml + `<div style="text-align:center; font-size:1.4rem; margin:1rem 0;">${partsSub[1].replace(/\n/g, '<br>')}</div>`;
+      subTable += '</tr></table>';
+      qHtml = subTable + `<div style="text-align:center; font-size:1.4rem; margin:1rem 0;">${partsSub[1].replace(/\n/g, '<br>')}</div>`;
     } 
-    // 2. 照合問題 (V001-V016)
     else if (q.id.match(/^V0(0[1-9]|1[0-6])$/)) {
       const lines = q.q.split('\n');
       qHtml = `<div class="matching-container"><span>${lines[0]}</span><span>${lines[1]}</span></div>`;
     } 
-    // 3. 言語の強調表示 (V50以降など)
     else if (q.id.startsWith('V') && q.q.includes('\n')) {
       const lines = q.q.split('\n');
       qHtml = `<span class="q-prompt">${lines[0]}</span>`;
@@ -204,7 +196,6 @@
         qHtml += `<span class="q-sub">${lines[i]}</span>`;
       }
     } 
-    // 4. その他
     else {
       qHtml = `<div>${q.q.replace(/\n/g, '<br>')}</div>`;
     }
@@ -212,20 +203,20 @@
     if (q.img && q.img.startsWith('[FARE]')) {
       const data = q.img.replace('[FARE]', '').split(';');
       const stations = data[0].split('|');
-      let tableHtml = '<table class="sub-table">';
-      tableHtml += `<tr><th>駅名</th><th>${stations[0]}</th><td colspan="5" class="legend-cell"><div class="legend-box">上段 普通運賃<br>下段 普通運賃+特急料金</div><br>※実際とは異なる</td></tr>`;
+      let fareTable = '<table class="sub-table">';
+      fareTable += `<tr><th>駅名</th><th>${stations[0]}</th><td colspan="5" class="legend-cell"><div class="legend-box">上段 普通運賃<br>下段 普通運賃+特急料金</div><br>※実際とは異なる</td></tr>`;
       for (let i = 1; i < stations.length; i++) {
-        tableHtml += `<tr><th>${stations[i]}</th>`;
+        fareTable += `<tr><th>${stations[i]}</th>`;
         const prices = data[i].split('|');
-        for (let j = 0; j < i; j++) { tableHtml += `<td>${prices[j].replace(/\\n/g, '<br>')}</td>`; }
-        tableHtml += `<th>${stations[i]}</th>`;
-        for (let j = i + 1; j < stations.length; j++) { tableHtml += '<td class="no-border"></td>'; }
-        tableHtml += '</tr>';
+        for (let j = 0; j < i; j++) { fareTable += `<td>${prices[j].replace(/\\n/g, '<br>')}</td>`; }
+        fareTable += `<th>${stations[i]}</th>`;
+        for (let j = i + 1; j < stations.length; j++) { fareTable += '<td class="no-border"></td>'; }
+        fareTable += '</tr>';
       }
-      tableHtml += '</table>';
-      qHtml += tableHtml;
+      fareTable += '</table>';
+      qHtml += fareTable;
     } else if (q.img && q.img.startsWith('[TABLE]')) {
-      qHtml += renderTable(q.img);
+      qHtml += renderGenericTable(q.img);
     } else if (q.img && q.img.trim() !== "") {
       qHtml += `<img src="images/${q.img}" class="q-img">`;
     }
@@ -256,7 +247,7 @@
     if (expText.includes('[TABLE]')) {
       const tablePart = expText.match(/\[TABLE\].+$/)[0];
       const textPart = expText.replace(tablePart, '');
-      expText = textPart + '<br>' + renderTable(tablePart);
+      expText = textPart + '<br>' + renderGenericTable(tablePart);
     }
     document.getElementById('modal-explanation').innerHTML = "正解：<strong>" + q.options[q.answer] + "</strong><br><br><strong>解説:</strong><br>" + expText.replace(/\n/g, '<br>');
     document.getElementById('overlay').style.display = 'flex';
