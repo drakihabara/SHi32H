@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 <title>高校生用SPI対策</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
 <style>
   html, body { touch-action: manipulation; }
   body {
@@ -95,6 +98,17 @@
   let allQuestions = []; 
   let questions = [];    
   let current = 0, score = 0, currentFileName = '';
+
+  const katexOptions = {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$', right: '$', display: false},
+      {left: '\\(', right: '\\)', display: false},
+      {left: '\\[', right: '\\]', display: true}
+    ],
+    throwOnError: false
+  };
+
   async function startQuiz(tag) {
     document.getElementById('category-select').style.display = 'none';
     document.getElementById('mainTitle').style.display = 'none'; 
@@ -227,7 +241,10 @@
       qHtml += `<img src="images/${q.img}" class="q-img">`;
     }
     
-    document.getElementById('question').innerHTML = qHtml;
+    const questionEl = document.getElementById('question');
+    questionEl.innerHTML = qHtml;
+    if (window.renderMathInElement) renderMathInElement(questionEl, katexOptions);
+
     const ul = document.getElementById('options');
     ul.innerHTML = '';
     q.options.forEach((opt, i) => {
@@ -236,6 +253,8 @@
       li.firstChild.onclick = () => selectAnswer(i);
       ul.appendChild(li);
     });
+    if (window.renderMathInElement) renderMathInElement(ul, katexOptions);
+
     document.getElementById('progress').textContent = `${current + 1} / ${questions.length}`;
   }
   function selectAnswer(idx) {
@@ -258,7 +277,10 @@
         expText = textPart + '<br>' + renderGenericTable(tablePart);
       }
     }
-    document.getElementById('modal-explanation').innerHTML = "正解：<strong>" + q.options[q.answer] + "</strong><br><br><strong>解説:</strong><br>" + expText.replace(/\n/g, '<br>');
+    const expEl = document.getElementById('modal-explanation');
+    expEl.innerHTML = "正解：<strong>" + q.options[q.answer] + "</strong><br><br><strong>解説:</strong><br>" + expText.replace(/\n/g, '<br>');
+    if (window.renderMathInElement) renderMathInElement(expEl, katexOptions);
+
     document.getElementById('overlay').style.display = 'flex';
   }
   document.getElementById('modalNextBtn').onclick = () => {
